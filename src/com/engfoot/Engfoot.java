@@ -1,5 +1,8 @@
 package com.engfoot;
 
+import com.engfoot.serial.EngduinoInterface;
+import com.engfoot.serial.ConnectionException;
+import com.engfoot.serial.SerialPortWrapper;
 import jssc.SerialPort;
 import jssc.SerialPortList;
 
@@ -29,7 +32,7 @@ public class Engfoot {
             }
         }
         
-        return new EngduinoInterface(new SerialPort(serialPort));
+        return new EngduinoInterface(new SerialPortWrapper(serialPort));
     }
     
     public EngduinoInterface connect() throws ConnectionException {

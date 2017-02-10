@@ -3,22 +3,22 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.engfoot;
+package com.engfoot.serial;
 
 /**
  *
- * @author zcabmos
+ * @author jacob
  */
-public class ConnectionException extends Exception {
+public class SerialException extends Exception {
 
-    private String message;
-    
-    public ConnectionException(String message) {
+    private final String message;
+
+    public SerialException(String message) {
         this.message = message;
     }
     @Override
     public String getMessage() {
-        return message; //To change body of generated methods, choose Tools | Templates.
+        return message;
     }
     
 }

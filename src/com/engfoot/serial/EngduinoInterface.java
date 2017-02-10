@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.engfoot;
+package com.engfoot.serial;
 
+import com.engfoot.ButtonHandler;
+import com.engfoot.Value;
+import com.engfoot.ValueChangeHandler;
+import com.engfoot.serial.SerialException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jssc.SerialPort;
@@ -16,30 +20,26 @@ import jssc.SerialPortException;
  *
  * @author zcabmos
  */
-public class EngduinoInterface implements SerialPortEventListener {
+public class EngduinoInterface {
 
     private ButtonHandler buttonHandler;
     private ValueChangeHandler<Double> temperatureHandler;
     private ValueChangeHandler<Double> accelerometerHandler;
-    private SerialPort serialPort;
-    private StringBuilder incomingMessage = new StringBuilder();
+    private final SerialPortWrapper serialPort;
     private int lastButtonState = 0;
 
-    public EngduinoInterface(SerialPort serialPort) {
+    public EngduinoInterface(SerialPortWrapper serialPort) throws ConnectionException {
         this.serialPort = serialPort;
-        try {
-            serialPort.openPort();
-            serialPort.setParams(
-                    SerialPort.BAUDRATE_9600,
-                    SerialPort.DATABITS_8,
-                    SerialPort.STOPBITS_1,
-                    SerialPort.PARITY_NONE);
-            serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
-            serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
-        } catch (SerialPortException ex) {
-            ex.printStackTrace();
-        }
+        serialPort.openPort();
+        serialPort.setParams(
+                SerialPort.BAUDRATE_9600,
+                SerialPort.DATABITS_8,
+                SerialPort.STOPBITS_1,
+                SerialPort.PARITY_NONE);
+        serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | SerialPort.FLOWCONTROL_RTSCTS_OUT);
+
+        serialPort.addEventListener(new SerialListener(), SerialPort.MASK_RXCHAR);
     }
 
     public void addButtonHandler(ButtonHandler handler) {
@@ -54,8 +54,12 @@ public class EngduinoInterface implements SerialPortEventListener {
         this.accelerometerHandler = handler;
     }
 
-    public void sendMessage(String message) {
+    public void sendMessage(String message) throws SerialException {
+        serialPort.writeString(message);
+    }
 
+    public boolean disconnect() throws SerialException {
+        return serialPort.closePort();
     }
 
     private void process(String message) {
@@ -78,7 +82,7 @@ public class EngduinoInterface implements SerialPortEventListener {
 
                 }
                 break;
-            case "2":
+            case "2": // button
                 try {
                     int state = Integer.parseInt(value);
                     if (state != lastButtonState) {
@@ -100,27 +104,26 @@ public class EngduinoInterface implements SerialPortEventListener {
 
                 }
                 break;
-            case "4":
+            case "4": // magnetometer
                 break;
         }
     }
 
-    @Override
-    public void serialEvent(SerialPortEvent event) {
-        if (event.isRXCHAR() && event.getEventValue() > 0) {
-            try {
-                byte buffer[] = serialPort.readBytes();
-                for (byte b : buffer) {
-                    if (b == '\n') {
-                        process(incomingMessage.toString());
-                        incomingMessage.setLength(0);
-                    } else {
-                        incomingMessage.append((char) b);
+    public class SerialListener implements SerialPortEventListener {
+
+        @Override
+        public void serialEvent(SerialPortEvent event) {
+            if (event.isRXCHAR() && event.getEventValue() > 0) {
+                try {
+                    String input = serialPort.readString();
+                    if (input != null) {
+                        process(input);
                     }
+                } catch (SerialException ex) {
+                    System.err.println(ex.getMessage());
                 }
-            } catch (SerialPortException ex) {
-                System.out.println("Error in receiving string from COM-port: " + ex);
             }
         }
+
     }
 }
