@@ -1,20 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.engfoot.serial;
 
-import com.engfoot.ButtonHandler;
-import com.engfoot.Value;
-import com.engfoot.ValueChangeHandler;
-import com.engfoot.serial.SerialException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.engfoot.handler.ButtonHandler;
+import com.engfoot.handler.Value;
+import com.engfoot.handler.ValueChangeHandler;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
-import jssc.SerialPortException;
 
 /**
  *

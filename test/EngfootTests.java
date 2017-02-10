@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-import com.engfoot.ButtonHandler;
+import com.engfoot.handler.ButtonHandler;
 import com.engfoot.serial.ConnectionException;
 import com.engfoot.serial.EngduinoInterface;
 import com.engfoot.Engfoot;
