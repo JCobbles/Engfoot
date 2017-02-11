@@ -1,6 +1,5 @@
 package com.engfoot.serial;
 
-import javax.annotation.Resource;
 import jssc.SerialPort;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
@@ -11,9 +10,7 @@ import jssc.SerialPortException;
  */
 public class SerialPortWrapper implements SerialPortInterface {
 
-    @Resource
     private final SerialPort serialPort;
-    private final StringBuilder incomingMessage = new StringBuilder();
 
     public SerialPortWrapper(SerialPort port) {
         serialPort = port;
@@ -81,15 +78,16 @@ public class SerialPortWrapper implements SerialPortInterface {
      */
     @Override
     public String readString() throws SerialException {
+        StringBuilder incomingMessage = new StringBuilder();
         try {
-            byte buffer[] = serialPort.readBytes();
-            for (byte b : buffer) {
-                if (b == '\n') {
-                    String message = incomingMessage.toString();
-                    incomingMessage.setLength(0);
-                    return message;
+            byte buffer[];
+            byte currentByte;
+            while ((buffer = serialPort.readBytes(1)) != null) {
+                currentByte = buffer[0];
+                if (currentByte == '\n') {
+                    return incomingMessage.toString();
                 } else {
-                    incomingMessage.append((char) b);
+                    incomingMessage.append((char) currentByte);
                 }
             }
         } catch (SerialPortException ex) {

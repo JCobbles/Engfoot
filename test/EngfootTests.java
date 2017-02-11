@@ -36,10 +36,10 @@ import org.mockito.runners.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EngfootTests {
-    
+
     @Mock
     SerialPort serialPort;
-    
+
     private Engfoot engfoot;
     private EngduinoInterface footInterface;
     private SerialPortWrapper serialPortWrapper;
@@ -56,21 +56,16 @@ public class EngfootTests {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws ConnectionException, SerialPortException {
         MockitoAnnotations.initMocks(this);
         serialPortWrapper = new SerialPortWrapper(serialPort);
 
         engfoot = Mockito.mock(Engfoot.class);
-        
-        try {
-            Mockito.when(serialPort.openPort()).thenReturn(true);
-            footInterface = new EngduinoInterface(serialPortWrapper);
-            
-            Mockito.when(engfoot.connect()).thenReturn(footInterface);
-        } catch (ConnectionException | SerialPortException ex) {
-            ex.printStackTrace();
-            fail(ex.getMessage());
-        }
+
+        Mockito.when(serialPort.openPort()).thenReturn(true);
+        footInterface = new EngduinoInterface(serialPortWrapper);
+
+        Mockito.when(engfoot.connect()).thenReturn(footInterface);
     }
 
     @After
@@ -91,12 +86,8 @@ public class EngfootTests {
     }
 
     @Test
-    public void readsCorrectStringFromSerialPort() {
-        try {
-            Mockito.when(serialPort.readBytes()).thenReturn("2: 1\n".getBytes());
-        } catch (SerialPortException ex) {
-            fail(ex.getExceptionType());
-        }
+    public void readsCorrectStringFromSerialPort() throws SerialPortException {
+        Mockito.when(serialPort.readBytes(1)).thenReturn("2".getBytes(), ":".getBytes(), " ".getBytes(), "1".getBytes(), "\n".getBytes());
         try {
             String response = serialPortWrapper.readString();
             assertEquals("2: 1", response);
