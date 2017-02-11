@@ -81,12 +81,13 @@ public class SerialPortWrapper implements SerialPortInterface {
      */
     @Override
     public String readString() throws SerialException {
-        incomingMessage.setLength(0);
         try {
             byte buffer[] = serialPort.readBytes();
             for (byte b : buffer) {
                 if (b == '\n') {
-                    return incomingMessage.toString();
+                    String message = incomingMessage.toString();
+                    incomingMessage.setLength(0);
+                    return message;
                 } else {
                     incomingMessage.append((char) b);
                 }

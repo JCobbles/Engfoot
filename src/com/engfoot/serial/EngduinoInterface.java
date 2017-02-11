@@ -54,7 +54,7 @@ public class EngduinoInterface {
     }
 
     private void process(String message) {
-        System.out.println(message);
+        System.out.println("MESSAGE: " + message);
         String[] splitMessage = message.split(":");
         String key, value;
         try {
