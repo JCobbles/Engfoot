@@ -3,11 +3,12 @@ package com.engfoot;
 import com.engfoot.serial.EngduinoInterface;
 import com.engfoot.serial.ConnectionException;
 import com.engfoot.serial.SerialPortWrapper;
+import jssc.SerialPort;
 import jssc.SerialPortList;
 
 /**
  *
- * @author zcabmos
+ * @author Jacob Moss
  */
 public class Engfoot {
         
@@ -37,7 +38,7 @@ public class Engfoot {
             }
         }
         
-        return new EngduinoInterface(new SerialPortWrapper(serialPort));
+        return new EngduinoInterface(new SerialPortWrapper(new SerialPort(serialPort)));
     }
     
     /**

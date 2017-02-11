@@ -15,22 +15,34 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
+import jssc.SerialPortException;
+import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  *
  * @author jacob
  */
+@RunWith(MockitoJUnitRunner.class)
 public class EngfootTests {
-
+    
+    @Mock
+    SerialPort serialPort;
+    
     private Engfoot engfoot;
     private EngduinoInterface footInterface;
+    private SerialPortWrapper serialPortWrapper;
 
     public EngfootTests() {
     }
@@ -45,7 +57,20 @@ public class EngfootTests {
 
     @Before
     public void setUp() {
-        engfoot = new Engfoot();
+        MockitoAnnotations.initMocks(this);
+        serialPortWrapper = new SerialPortWrapper(serialPort);
+
+        engfoot = Mockito.mock(Engfoot.class);
+        
+        try {
+            Mockito.when(serialPort.openPort()).thenReturn(true);
+            footInterface = new EngduinoInterface(serialPortWrapper);
+            
+            Mockito.when(engfoot.connect()).thenReturn(footInterface);
+        } catch (ConnectionException | SerialPortException ex) {
+            ex.printStackTrace();
+            fail(ex.getMessage());
+        }
     }
 
     @After
@@ -61,44 +86,22 @@ public class EngfootTests {
 
     @Test
     public void canCheckSerialPorts() {
-        String[] ports = engfoot.getSerialPorts();
+        String[] ports = new Engfoot().getSerialPorts();
         assert ports.length > 0;
     }
 
     @Test
-    public void canConnect() {
+    public void readsCorrectStringFromSerialPort() {
         try {
-            footInterface = engfoot.connect();
-        } catch (ConnectionException ex) {
-            ex.printStackTrace();
-            fail();
+            Mockito.when(serialPort.readBytes()).thenReturn("2: 1\n".getBytes());
+        } catch (SerialPortException ex) {
+            fail(ex.getExceptionType());
         }
-    }
-
-    @Test
-    public void canReceiveInput() {
         try {
-            footInterface = engfoot.connect();
-        } catch (ConnectionException ex) {
-            fail("Cannot connect, make sure engduino is connected to computer");
-        }
-        SerialPortInterface serialPort = Mockito.mock(SerialPortInterface.class);
-        try {
-            Mockito.when(serialPort.readString()).thenReturn("2: 0");
+            String response = serialPortWrapper.readString();
+            assertEquals("2: 1", response);
         } catch (SerialException ex) {
-            fail();
+            fail(ex.getMessage());
         }
-//        try {
-//            footInterface.new SerialListener();
-//        } catch (ConnectionException ex) {
-//            fail("Could not add eventlistener");
-//        }
-        footInterface.addButtonHandler(new ButtonHandler() {
-            @Override
-            public void handle() {
-                System.out.println("handle");
-            }
-        });
-
     }
 }
