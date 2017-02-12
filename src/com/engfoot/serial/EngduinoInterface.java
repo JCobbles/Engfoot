@@ -61,6 +61,10 @@ public class EngduinoInterface  {
     public void addMagnetometerHandler(ValueChangeHandler<float[]> handler) {
         this.magnetometerHandler = handler;
     }
+    
+    public LightCommandBuilder createLightCommand() {
+        return new LightCommandBuilder(serialPort);
+    }
 
     public void sendMessage(String message) throws SerialException {
         serialPort.writeString(message);

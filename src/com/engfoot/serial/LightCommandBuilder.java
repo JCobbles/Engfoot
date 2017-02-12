@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.engfoot.util;
+package com.engfoot.serial;
 
 import com.engfoot.serial.SerialException;
 import com.engfoot.serial.SerialPortWrapper;
@@ -20,15 +20,18 @@ public class LightCommandBuilder {
     private final SerialPortWrapper serialPort;
     private final Map<Integer, ColorSettings> leds = new HashMap<>();
 
-    public LightCommandBuilder(SerialPortWrapper serialPort) {
+    protected LightCommandBuilder(SerialPortWrapper serialPort) {
         this.serialPort = serialPort;
     }
 
     public LightCommandBuilder setLED(int led, boolean on, Color color) {
-        return setLED(led, new ColorSettings(led, on, color));
+        return setLED(led, new ColorSettings(on, color));
     }
 
     public LightCommandBuilder setLED(int led, ColorSettings color) {
+        if (led < 1 || led > 15) {
+            throw new IllegalArgumentException("LED number has to be between 1 and 15 (inclusive) but was " + led);
+        }
         if (leds.containsKey(led)) {
             leds.replace(led, color);
         } else {
@@ -41,7 +44,7 @@ public class LightCommandBuilder {
         StringBuilder command = new StringBuilder();
         for (Map.Entry<Integer, ColorSettings> entry : leds.entrySet()) {
             ColorSettings color = entry.getValue();
-            command.append(String.format("1,%1$d,%2$d,%3$d,%4$d,%5$d\n",
+            command.append(String.format("1,%1$d,%2$s,%3$d,%4$d,%5$d\n",
                     entry.getKey(),
                     color.on ? "1" : "0",
                     color.r,
@@ -49,10 +52,10 @@ public class LightCommandBuilder {
                     color.b)
             );
         }
-        return new LightCommand("");
+        return new LightCommand(command.toString());
     }
 
-    class LightCommand {
+    public class LightCommand {
 
         private final String command;
 
@@ -65,22 +68,4 @@ public class LightCommandBuilder {
         }
     }
 
-    class ColorSettings {
-
-        public int index, r, g, b;
-        public boolean on;
-
-        public ColorSettings(int index, boolean on, int red, int green, int blue) {
-            this.on = on;
-            this.index = index;
-            r = red;
-            g = green;
-            b = blue;
-        }
-
-        public ColorSettings(int index, boolean on, Color color) {
-            this(index, on, color.getRed(), color.getGreen(), color.getBlue());
-        }
-
-    }
 }

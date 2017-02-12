@@ -1,22 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-import com.engfoot.handler.ButtonHandler;
 import com.engfoot.serial.ConnectionException;
 import com.engfoot.serial.EngduinoInterface;
 import com.engfoot.Engfoot;
 import com.engfoot.serial.SerialException;
-import com.engfoot.serial.SerialPortInterface;
 import com.engfoot.serial.SerialPortWrapper;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.engfoot.serial.ColorSettings;
+import com.engfoot.serial.LightCommandBuilder.LightCommand;
+import java.awt.Color;
 import jssc.SerialPort;
-import jssc.SerialPortEvent;
 import jssc.SerialPortException;
-import junit.framework.Assert;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -24,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -66,17 +57,12 @@ public class EngfootTests {
         footInterface = new EngduinoInterface(serialPortWrapper);
 
         Mockito.when(engfoot.connect()).thenReturn(footInterface);
+
     }
 
     @After
     public void tearDown() {
-        if (footInterface != null) {
-            try {
-                footInterface.disconnect();
-            } catch (SerialException ex) {
-                ex.printStackTrace();
-            }
-        }
+
     }
 
     @Test
@@ -86,13 +72,29 @@ public class EngfootTests {
     }
 
     @Test
-    public void readsCorrectStringFromSerialPort() throws SerialPortException {
+    public void readsCorrectStringFromSerialPort() throws SerialPortException, SerialException {
         Mockito.when(serialPort.readBytes(1)).thenReturn("2".getBytes(), ":".getBytes(), " ".getBytes(), "1".getBytes(), "\n".getBytes());
-        try {
-            String response = serialPortWrapper.readString();
-            assertEquals("2: 1", response);
-        } catch (SerialException ex) {
-            fail(ex.getMessage());
-        }
+        String response = serialPortWrapper.readString();
+        assertEquals("2: 1", response);
+    }
+
+    @Test
+    public void writesLightCommandCorrectly() throws SerialPortException, SerialException {
+        LightCommand c = footInterface.createLightCommand().setLED(12, new ColorSettings(true, 255, 100, 100)).build();
+        c.execute();
+        Mockito.verify(serialPort, Mockito.times(1)).writeString("1,12,1,255,100,100\n");
+    }
+    
+    @Test
+    public void writesSecondLightCommandCorrectly() throws SerialPortException, SerialException {
+        LightCommand c = footInterface.createLightCommand().setLED(2, true, Color.PINK).build();
+        c.execute();
+        Mockito.verify(serialPort, Mockito.times(1)).writeString("1,2,1,255,175,175\n");
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionIfInvalidLightValuesEntered() throws SerialPortException, SerialException {
+        LightCommand c = footInterface.createLightCommand().setLED(16, new ColorSettings(true, 255, 100, 100)).build();
+        c.execute();
     }
 }

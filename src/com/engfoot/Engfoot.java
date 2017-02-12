@@ -14,39 +14,42 @@ import jssc.SerialPortList;
  * @author Jacob Moss
  */
 public class Engfoot {
-    
-    private static final List<SerialPortWrapper> usedPorts = new ArrayList<>();
+
+    private static final List<SerialPortWrapper> USED_PORTS = new ArrayList<>();
+
     public Engfoot() {
     }
-    
+
     /**
-     * 
+     *
      * @return list of available ports, or an empty array if none available
      */
     public String[] getSerialPorts() {
         return jssc.SerialPortList.getPortNames();
     }
-    
+
     public static void clearPorts() {
-        for (SerialPortWrapper port : usedPorts) {
+        for (SerialPortWrapper port : USED_PORTS) {
             try {
                 port.purgeAndClose();
             } catch (SerialException ex) {
                 ex.printStackTrace();
             }
         }
-        usedPorts.clear();
+        USED_PORTS.clear();
     }
-    
+
     public static void addUsedPort(SerialPortWrapper port) {
-        usedPorts.add(port);
+        USED_PORTS.add(port);
     }
-    
+
     /**
      * Connects to the specified COM port
-     * @param serialPort the identifier of the port, as listed in <code>getSerialPorts()</code>
+     *
+     * @param serialPort the identifier of the port, as listed in
+     * <code>getSerialPorts()</code>
      * @return <code>EngduinoInterface</code>
-     * @throws ConnectionException 
+     * @throws ConnectionException
      */
     public EngduinoInterface connect(String serialPort) throws ConnectionException {
         clearPorts();
@@ -57,15 +60,15 @@ public class Engfoot {
                 throw new ConnectionException("No ports available");
             }
         }
-        
+
         return new EngduinoInterface(new SerialPortWrapper(new SerialPort(serialPort)));
     }
-    
+
     /**
      * Connects to the first available COM port
-     * 
-     * @return <code>EngduinoInterface</code> 
-     * @throws ConnectionException 
+     *
+     * @return <code>EngduinoInterface</code>
+     * @throws ConnectionException
      */
     public EngduinoInterface connect() throws ConnectionException {
         return connect(null);
