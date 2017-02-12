@@ -1,19 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.engfoot.serial;
 
-import com.engfoot.serial.SerialException;
-import com.engfoot.serial.SerialPortWrapper;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * @author jacob
+ * Internal utility class to easily create commands that turn on/off leds on the engduino
+ * 
+ * @author Jacob Moss
  */
 public class LightCommandBuilder {
 

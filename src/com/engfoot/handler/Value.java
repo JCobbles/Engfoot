@@ -2,11 +2,11 @@ package com.engfoot.handler;
 
 /**
  *
- * @author jacob
+ * @author Jacob Moss
  */
 public class Value<E> {
 
-    private E value;
+    private final E value;
 
     public Value(E value) {
         this.value = value;

@@ -3,8 +3,7 @@ package com.engfoot.serial;
 import java.awt.Color;
 
 /**
- *
- * @author Jacob
+ * @author Jacob Moss
  */
 public class ColorSettings {
 

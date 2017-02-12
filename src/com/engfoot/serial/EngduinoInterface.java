@@ -10,8 +10,9 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 
 /**
- *
- * @author zcabmos
+ * This class handles all implemented communication to the Engduino
+ * Do not create directly - use <code>Engfoot</code>
+ * @author Jacob Moss
  */
 public class EngduinoInterface  {
 

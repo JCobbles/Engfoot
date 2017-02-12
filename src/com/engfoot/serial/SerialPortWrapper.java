@@ -5,8 +5,9 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
 /**
- *
- * @author jacob
+ * Wrapper for a SerialPort
+ * 
+ * @author Jacob Moss
  */
 public class SerialPortWrapper implements SerialPortInterface {
 
@@ -95,7 +96,7 @@ public class SerialPortWrapper implements SerialPortInterface {
         }
         return null;
     }
-    
+
     @Override
     public boolean purgeAndClose() throws SerialException {
         if (serialPort.isOpened()) {

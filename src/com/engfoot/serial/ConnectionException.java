@@ -1,17 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.engfoot.serial;
 
 /**
- *
- * @author zcabmos
+ * @author Jacob Moss
  */
 public class ConnectionException extends Exception {
 
-    private String message;
+    private final String message;
 
     public ConnectionException(String message) {
         this.message = message;

@@ -1,8 +1,8 @@
 package com.engfoot.handler;
 
 /**
- *
- * @author jacob
+ * @author Jacob Moss
+ * @param <E> the data type of this handler
  */
 public interface ValueChangeHandler<E> {
 
