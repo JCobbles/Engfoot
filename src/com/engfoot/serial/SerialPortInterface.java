@@ -24,6 +24,8 @@ public interface SerialPortInterface {
     void addEventListener(SerialPortEventListener listener, int mask) throws ConnectionException;
 
     boolean writeString(String string) throws SerialException;
-    
+
     String readString() throws SerialException;
+
+    boolean purgeAndClose() throws SerialException;
 }

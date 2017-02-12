@@ -95,5 +95,20 @@ public class SerialPortWrapper implements SerialPortInterface {
         }
         return null;
     }
-
+    
+    @Override
+    public boolean purgeAndClose() throws SerialException {
+        if (serialPort.isOpened()) {
+            try {
+                serialPort.purgePort(1);
+                serialPort.purgePort(2);
+                serialPort.closePort();
+                return true;
+            } catch (SerialPortException ex) {
+                throw new SerialException("Purging and closing failed with error: " + ex.getExceptionType());
+            }
+        } else {
+            return false;
+        }
+    }
 }

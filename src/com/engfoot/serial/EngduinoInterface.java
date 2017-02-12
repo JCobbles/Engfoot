@@ -1,8 +1,10 @@
 package com.engfoot.serial;
 
+import com.engfoot.Engfoot;
 import com.engfoot.handler.ButtonHandler;
 import com.engfoot.handler.Value;
 import com.engfoot.handler.ValueChangeHandler;
+import java.util.Arrays;
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -11,18 +13,25 @@ import jssc.SerialPortEventListener;
  *
  * @author zcabmos
  */
-public class EngduinoInterface {
+public class EngduinoInterface  {
 
     private ButtonHandler buttonHandler;
-    private ValueChangeHandler<Double> temperatureHandler;
+    private ValueChangeHandler<Float> temperatureHandler;
     private ValueChangeHandler<Double> accelerometerHandler;
+    private ValueChangeHandler<Float> lightSensorHandler;
+    private ValueChangeHandler<float[]> magnetometerHandler;
     private final SerialPortWrapper serialPort;
     private int lastButtonState = 0;
 
     public EngduinoInterface(SerialPortWrapper serialPort) throws ConnectionException {
         this.serialPort = serialPort;
-
+        try {
+            serialPort.purgeAndClose();
+        } catch (SerialException ex) {
+            ex.printStackTrace();
+        }
         serialPort.openPort();
+        Engfoot.addUsedPort(serialPort);
         serialPort.setParams(
                 SerialPort.BAUDRATE_9600,
                 SerialPort.DATABITS_8,
@@ -37,12 +46,20 @@ public class EngduinoInterface {
         buttonHandler = handler;
     }
 
-    public void addTemperatureHandler(ValueChangeHandler<Double> handler) {
+    public void addTemperatureHandler(ValueChangeHandler<Float> handler) {
         this.temperatureHandler = handler;
     }
 
     public void addAccelerometerHandler(ValueChangeHandler<Double> handler) {
         this.accelerometerHandler = handler;
+    }
+    
+    public void addLightSensorHandler(ValueChangeHandler<Float> handler) {
+        this.lightSensorHandler = handler;
+    }
+    
+    public void addMagnetometerHandler(ValueChangeHandler<float[]> handler) {
+        this.magnetometerHandler = handler;
     }
 
     public void sendMessage(String message) throws SerialException {
@@ -54,7 +71,6 @@ public class EngduinoInterface {
     }
 
     private void process(String message) {
-        System.out.println("MESSAGE: " + message);
         String[] splitMessage = message.split(":");
         String key, value;
         try {
@@ -87,15 +103,25 @@ public class EngduinoInterface {
                 }
                 break;
             case "3": // temperature
-                try {
-                    if (temperatureHandler != null) {
-                        temperatureHandler.onChange(new Value(Double.parseDouble(value)));
-                    }
+                if (temperatureHandler != null) try {
+                    temperatureHandler.onChange(new Value(Float.parseFloat(value)));
                 } catch (NumberFormatException e) {
-
                 }
                 break;
             case "4": // magnetometer
+                if (magnetometerHandler != null) try {
+                    Float[] values = Arrays.stream(value.split(" "))
+                            .map(Float::parseFloat)
+                            .toArray(Float[]::new);
+                    magnetometerHandler.onChange(new Value(new float[] { values[0], values[1], values[2] }));
+                } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                }
+                break;
+            case "5": // light
+                if (lightSensorHandler != null) try {
+                    lightSensorHandler.onChange(new Value(Float.parseFloat(value)));
+                } catch (NumberFormatException e) {
+                }
                 break;
         }
     }
