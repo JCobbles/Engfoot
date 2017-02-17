@@ -87,7 +87,7 @@ public class EngfootTests {
     
     @Test
     public void writesSecondLightCommandCorrectly() throws SerialPortException, SerialException {
-        LightCommand c = footInterface.createLightCommand().setLED(2, true, Color.PINK).build();
+        LightCommand c = footInterface.createLightCommand().setLED(2, new ColorSettings(true, Color.PINK)).build();
         c.execute();
         Mockito.verify(serialPort, Mockito.times(1)).writeString("1,2,1,255,175,175\n");
     }

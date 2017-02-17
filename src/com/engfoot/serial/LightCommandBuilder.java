@@ -18,10 +18,6 @@ public class LightCommandBuilder {
         this.serialPort = serialPort;
     }
 
-    public LightCommandBuilder setLED(int led, boolean on, Color color) {
-        return setLED(led, new ColorSettings(on, color));
-    }
-
     public LightCommandBuilder setLED(int led, ColorSettings color) {
         if (led < 1 || led > 15) {
             throw new IllegalArgumentException("LED number has to be between 1 and 15 (inclusive) but was " + led);
