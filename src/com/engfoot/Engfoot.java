@@ -28,7 +28,7 @@ public class Engfoot {
         return jssc.SerialPortList.getPortNames();
     }
 
-    public static void clearPorts() {
+    private static void clearPorts() {
         for (SerialPortWrapper port : USED_PORTS) {
             try {
                 port.purgeAndClose();
